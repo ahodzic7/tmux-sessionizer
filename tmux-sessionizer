@@ -24,14 +24,25 @@ if [[ $# -eq 1 ]]; then
 else
     # If someone wants to make this extensible, i'll accept
     # PR
-    selected=$(find ~/ ~/personal ~/personal/dev/env/.config -mindepth 1 -maxdepth 1 -type d | fzf)
+    selected=$(find ~/ ~/personal ~/personal/dev/env/.config ~/work -mindepth 1 -maxdepth 1 -type d | fzf)
 fi
 
 if [[ -z $selected ]]; then
     exit 0
 fi
 
-selected_name=$(basename "$selected" | tr . _)
+root_dir=$(basename "$(dirname "$selected")")
+
+if [[ "$root_dir" == "work" ]]; then
+    prefix="w"
+elif [[ "$root_dir" == "personal" ]]; then
+    prefix="p"
+else
+    prefix=""
+fi
+
+selected_name="${prefix}_$(basename "$selected" | tr . _)"
+
 tmux_running=$(pgrep tmux)
 
 if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
